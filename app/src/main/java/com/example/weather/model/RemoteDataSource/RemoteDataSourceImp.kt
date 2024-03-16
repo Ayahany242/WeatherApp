@@ -17,10 +17,9 @@ class RemoteDataSourceImp private constructor(): RemoteDataSource {
             }
         }
     }
-
     override suspend fun getCurrentWeather(
-        lat: Double,
-        lon: Double,
+        lat: Float,
+        lon: Float,
         appid: String,
         units: String,
         lang: String

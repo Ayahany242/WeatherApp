@@ -1,10 +1,10 @@
 package com.example.weather.model.pojo
 
 data class Temp(
-	val min: Any? = null,
-	val max: Any? = null,
-	val eve: Any? = null,
-	val night: Any? = null,
-	val day: Any? = null,
-	val morn: Any? = null
+	val min: Double? = null,
+	val max: Double? = null,
+	val eve: Double? = null,
+	val night: Double? = null,
+	val day: Double? = null,
+	val morn: Double? = null
 )

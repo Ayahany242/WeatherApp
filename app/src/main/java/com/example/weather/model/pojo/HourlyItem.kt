@@ -1,7 +1,7 @@
 package com.example.weather.model.pojo
 
 data class HourlyItem(
-    val temp: Any? = null,
+    val temp: Double? = null,
     val visibility: Int? = null,
     val uvi: Any? = null,
     val pressure: Int? = null,

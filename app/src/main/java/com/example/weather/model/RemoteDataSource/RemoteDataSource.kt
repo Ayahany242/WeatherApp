@@ -4,5 +4,5 @@ import com.example.weather.model.pojo.WeatherResponse
 import retrofit2.Response
 
 interface RemoteDataSource {
-    suspend fun getCurrentWeather(lat: Double, lon: Double, appid: String, units: String, lang: String): Response<WeatherResponse>
+    suspend fun getCurrentWeather(lat: Float, lon: Float, appid: String, units: String, lang: String): Response<WeatherResponse>
 }

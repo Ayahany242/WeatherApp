@@ -1,19 +1,19 @@
 package com.example.weather.model.pojo
 
 data class Current(
-    val sunrise: Int? = null,
-    val temp: Any? = null,
-    val visibility: Int? = null,
-    val uvi: Any? = null,
-    val pressure: Int? = null,
-    val clouds: Int? = null,
-    val feelsLike: Any? = null,
-    val windGust: Any? = null,
-    val dt: Int? = null,
-    val windDeg: Int? = null,
-    val dewPoint: Any? = null,
-    val sunset: Int? = null,
-    val weather: List<WeatherItem?>? = null,
-    val humidity: Int? = null,
-    val windSpeed: Any? = null
+    val sunrise: Int? ,
+    val temp: Double? ,
+    val visibility: Int? ,
+    val uvi: Any? ,
+    val pressure: Int? ,
+    val clouds: Int? ,
+    val feelsLike: Any? ,
+    val windGust: Double?,
+    val dt: Int? ,
+    val windDeg: Int? ,
+    val dewPoint: Double? ,
+    val sunset: Int? ,
+    val weather: List<WeatherItem?>?,
+    val humidity: Int?,
+    val windSpeed: Double?
 )

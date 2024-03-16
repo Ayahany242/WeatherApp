@@ -2,4 +2,26 @@
     <string name="app_name">Weather</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="weather_today">Weather Today</string>
+    <string name="next_7_days">Next 7 Days</string>
+    <string name="Home">Home</string>
+    <string name="Favourite">Favourite</string>
+    <string name="Setting">Setting</string>
+    <string name="Alert">Alert</string>
+    <string name="weather_zone">Weather Zone</string>
+    <string name="add">Add</string>
+    <string name="city">City</string>
+    <string name="google_api_key">AIzaSyALEzKGnX8Gta5jX2RArUMQgtcMtd4cYEs</string>
+
+
+    <string name="Save_Location">Save this Location</string>
+    <string name="Dialog_Save_Map_Message">Do you want to save this location</string>
+    <string name="Save">Save</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Delete_Fav_Location">Delete Location From Favourite</string>
+    <string name="Dialog_Delete_Fav_Message">Do you want to Delete this Location from Favourite?</string>
+    <string name="Delete">Delete</string>
+    <string name="Save_In_Favourite">Save in Favourite</string>
+    <string name="Dialog_Save_Fav_Message">Do you want to save this Location in Favourite</string>
+    <string name="Save_Successfull">This location Saved Successful</string>
 </resources>

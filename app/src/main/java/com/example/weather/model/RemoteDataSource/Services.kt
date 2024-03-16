@@ -9,8 +9,8 @@ interface Services {
 
     @GET("onecall")
     suspend fun getCurrentTempData(
-        @Query("lat") latitude: Double,
-        @Query("lon") longitude: Double,
+        @Query("lat") latitude: Float,
+        @Query("lon") longitude: Float,
         @Query("appid") appid: String,
         @Query("units") units: String,
         @Query("lang") lang: String
