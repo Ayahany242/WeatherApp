@@ -21,11 +21,11 @@ class LocalDataSourceImpl private constructor(ctx: Context):LocalDataSource{
             }
         }
     }
-    override suspend fun insert(weather: WeatherDBModel): Long {
+    override suspend fun insertCurrentWeather(weather: WeatherDBModel): Long {
        return dao.insertWeather(weather)
     }
 
-    override suspend fun delete(weather: WeatherDBModel): Int {
+    override suspend fun deleteCurrentWeather(weather: WeatherDBModel): Int {
        return dao.deleteWeather(weather)
     }
 

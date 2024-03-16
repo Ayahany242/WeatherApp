@@ -1,6 +1,5 @@
 package com.example.weather.model.repository
 
-import android.util.Log
 import com.example.weather.model.RemoteDataSource.RemoteDataSource
 import com.example.weather.model.localDataSource.LocalDataSource
 import com.example.weather.model.pojo.LocationData
@@ -10,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
 private const val TAG = "WeatherResponse"
-class RepositoryImp private constructor(private val remoteDataSource: RemoteDataSource, private val localDataSource: LocalDataSource) :
+class RepositoryImp internal constructor(private val remoteDataSource: RemoteDataSource, private val localDataSource: LocalDataSource) :
     Repository {
     companion object {
         @Volatile
@@ -34,7 +33,7 @@ class RepositoryImp private constructor(private val remoteDataSource: RemoteData
         units: String,
         lang: String
     ): Response<WeatherResponse> {
-        Log.i(TAG, "getCurrentWeather: at repository ")
+       // Log.i(TAG, "getCurrentWeather: at repository ")
         return remoteDataSource.getCurrentWeather(lat, lon, appid, units, lang)
     }
 
@@ -42,10 +41,10 @@ class RepositoryImp private constructor(private val remoteDataSource: RemoteData
         return localDataSource.getAllWeather()
     }
     override suspend fun insertWeather(weather: WeatherDBModel): Long {
-        return localDataSource.insert(weather)
+        return localDataSource.insertCurrentWeather(weather)
     }
     override suspend fun deleteWeather(weather: WeatherDBModel): Int {
-        return localDataSource.delete(weather)
+        return localDataSource.deleteCurrentWeather(weather)
     }
 
     override suspend fun getAllFavourites(): Flow<List<LocationData>> {
