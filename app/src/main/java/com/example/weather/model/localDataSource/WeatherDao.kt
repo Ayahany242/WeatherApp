@@ -8,6 +8,7 @@ import androidx.room.Query
 import com.example.weather.model.pojo.LocationData
 import com.example.weather.model.pojo.WeatherDBModel
 import com.example.weather.model.pojo.WeatherResponse
+import com.example.weather.view.alerts.AlertPojo
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -27,4 +28,7 @@ interface WeatherDao {
 
     @Delete
     suspend fun deleteFavourite(favouriteCity: LocationData)
+
+    /*@Query("select * from AlertSkyWatch where id = :id limit 1")
+    fun getAlertWithId(id: String): AlertPojo*/
 }

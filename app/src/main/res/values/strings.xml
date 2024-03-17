@@ -12,7 +12,9 @@
     <string name="add">Add</string>
     <string name="city">City</string>
     <string name="google_api_key">AIzaSyALEzKGnX8Gta5jX2RArUMQgtcMtd4cYEs</string>
-
+    <string name="notification_permission_title" translatable="false">notification_permission_title</string>
+    <string name="notification_permmission_desc" translatable="false">notification_permmission_desc</string>
+    <string name="permission_request" translatable="false" >permission_request</string>
 
     <string name="Save_Location">Save this Location</string>
     <string name="Dialog_Save_Map_Message">Do you want to save this location</string>
@@ -40,4 +42,8 @@
     <string name="notification">Notification</string>
     <string name="disable">Disable</string>
     <string name="enable">Enable</string>
+    <string name="set_alarm">Set Alarm</string>
+    <string name="alarm">Alarm</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="no_alarms_yet">No Alert Yet</string>
 </resources>

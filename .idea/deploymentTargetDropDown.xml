@@ -2,12 +2,6 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="LocalDataSourceImplTest">
-        <State />
-      </entry>
-      <entry key="MainActivity">
-        <State />
-      </entry>
       <entry key="app">
         <State>
           <runningDeviceTargetSelectedWithDropDown>
@@ -23,15 +17,6 @@
           </runningDeviceTargetSelectedWithDropDown>
           <timeTargetWasSelectedWithDropDown value="2024-03-16T16:03:44.937899700Z" />
         </State>
-      </entry>
-      <entry key="deleteFavourite()">
-        <State />
-      </entry>
-      <entry key="getAllFavourites_noFavouriteExist()">
-        <State />
-      </entry>
-      <entry key="insertFavourite()">
-        <State />
       </entry>
     </value>
   </component>

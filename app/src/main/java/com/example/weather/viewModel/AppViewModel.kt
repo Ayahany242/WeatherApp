@@ -8,6 +8,7 @@ import com.example.weather.model.pojo.LocationData
 import com.example.weather.model.pojo.WeatherDBModel
 import com.example.weather.model.pojo.WeatherResponse
 import com.example.weather.utils.ApiStatus
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,7 @@ import timber.log.Timber
 import java.lang.Exception
 
 private const val TAG = "WeatherResponse"
-class AppViewModel(private val repository : Repository): ViewModel(){
+class AppViewModel(private val repository: Repository, private var dispatcher: CoroutineDispatcher = Dispatchers.IO): ViewModel(){
     private var _weather: MutableStateFlow<ApiStatus> = MutableStateFlow(ApiStatus.Loading)
     var weather : StateFlow<ApiStatus> = _weather
 
@@ -34,7 +35,7 @@ class AppViewModel(private val repository : Repository): ViewModel(){
 
     // Get user's current location and weather
     fun fetchWeather(lat:Float, lon:Float,lang:String ,apiKey:String,units: String){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             try {
                 val response = repository.getCurrentWeather(lat, lon, apiKey, units, lang)
                 if (response.isSuccessful) {
@@ -54,7 +55,7 @@ class AppViewModel(private val repository : Repository): ViewModel(){
         }
     }
     fun insertWeatherInRoom(weather:WeatherDBModel) {
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(dispatcher){
             try {
                val result = repository.insertWeather(weather)
                 if (result>0){
@@ -72,7 +73,7 @@ class AppViewModel(private val repository : Repository): ViewModel(){
     }
 
     fun deleteWeatherFromRoom(weather:WeatherDBModel) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             try {
                 val result = repository.deleteWeather(weather)
                 if (result>0){
@@ -89,7 +90,7 @@ class AppViewModel(private val repository : Repository): ViewModel(){
         }
     }
     fun getAllWeatherFromRoom() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             repository.getAllWeather()
                 .catch {
                     _allWeatherFromRoom.value = ApiStatus.Error(it.message.toString())
@@ -101,7 +102,7 @@ class AppViewModel(private val repository : Repository): ViewModel(){
     }
 
     fun insertFavourite(favoriteModel: LocationData) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             try {
                 repository.insertFavourite(favoriteModel)
             } catch (e: Exception) {
@@ -113,7 +114,10 @@ class AppViewModel(private val repository : Repository): ViewModel(){
     fun deleteFavourite(favouritModel: LocationData) {
         viewModelScope.launch(Dispatchers.IO){
             try {
-               repository.deleteFavourite(favouritModel)
+                _allFavourites.let {
+                    repository.deleteFavourite(favouritModel)
+                }
+
             } catch (e: Exception) {
                 Timber.tag("FavouriteViewModel").e(e.message.toString())
 
@@ -121,11 +125,11 @@ class AppViewModel(private val repository : Repository): ViewModel(){
         }
     }
     fun getAllFavourite() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             try {
                 repository.getAllFavourites()
                     .catch {
-
+                        Log.i(TAG, "getAllFavourite: Error")
                     }
                     .collect{
                         _allFavourites.value = it

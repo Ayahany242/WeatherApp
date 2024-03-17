@@ -159,7 +159,7 @@ class HomeFragment : Fragment() {
 
                     is ApiStatus.Error -> {
                         val errorMessage = weatherStatus.message // Access error message
-                        Snackbar.make(requireView(),errorMessage,Snackbar.LENGTH_LONG).show()
+                        //Snackbar.make(requireView(),errorMessage,Snackbar.LENGTH_LONG).show()
                         getDataFromRoom()
                     }
                 }

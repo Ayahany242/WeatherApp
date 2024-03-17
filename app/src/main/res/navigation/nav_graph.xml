@@ -47,11 +47,6 @@
         android:label="@string/Setting"
         tools:layout="@layout/fragment_settings" />
     <fragment
-        android:id="@+id/alertsFragment"
-        android:name="com.example.weather.view.alerts.AlertsFragment"
-        android:label="@string/Alert"
-        tools:layout="@layout/fragment_alerts" />
-    <fragment
         android:id="@+id/mapsFragment"
         android:name="com.example.weather.view.favourite.MapsFragment"
         android:label="MapsFragment" >
@@ -67,4 +62,8 @@
             android:id="@+id/action_mapsFragment_to_favouritePlaceFragment"
             app:destination="@id/favouritePlaceFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/alertFragment"
+        android:name="com.example.weather.AlertFragment"
+        android:label="AlertFragment" />
 </navigation>
