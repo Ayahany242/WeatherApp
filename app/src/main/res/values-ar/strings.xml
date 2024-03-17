@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Weather Zone</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="weather_today">طقس اليوم</string>
+    <string name="next_7_days">طقس الاسبوع</string>
+    <string name="Home">الصفحة الرئيسية</string>
+    <string name="Favourite">المفضلة</string>
+    <string name="Setting">الاعدادات</string>
+    <string name="Alert">التنبيهات</string>
+    <string name="weather_zone">Weather Zone</string>
+    <string name="add">اضافة</string>
+    <string name="city">المدينة</string>
+    <string name="google_api_key">AIzaSyALEzKGnX8Gta5jX2RArUMQgtcMtd4cYEs</string>
+
+    <string name="Save_Location">حفظ الموقع</string>
+    <string name="Dialog_Save_Map_Message">هل تريد حفظ هذا الموقع</string>
+    <string name="Save">حفظ</string>
+    <string name="Cancel">الغاء</string>
+    <string name="Delete_Fav_Location">ازالة من المفضل</string>
+    <string name="Dialog_Delete_Fav_Message">هل تريد ازالت هذا الموقع من المفضل؟</string>
+    <string name="Delete">ازالة</string>
+    <string name="Save_In_Favourite">حفظ في المفضل؟</string>
+    <string name="Dialog_Save_Fav_Message">هل تريد حفظ هذا الموقع من المفضل؟</string>
+    <string name="Save_Successfull">تم اضافة الموقع بنجاح!</string>
+    <string name="location">الموقع</string>
+    <string name="gps">GPS</string>
+    <string name="map">Map</string>
+    <string name="languages">اللغات</string>
+    <string name="english">English</string>
+    <string name="arabic">العربية</string>
+    <string name="wind_speed">سرعة الرياح</string>
+    <string name="meter_sec">Meter / Sec</string>
+    <string name="mile_hour">Mile / Hour</string>
+    <string name="temperature">وحدة قياس الطقس</string>
+    <string name="celsius">Celsius</string>
+    <string name="fahrenheit">Fahrenheit</string>
+    <string name="kelvin">Kelvin</string>
+    <string name="notification">الاشعارات</string>
+    <string name="disable">الغاء</string>
+    <string name="enable">تفعيل</string>
+</resources>

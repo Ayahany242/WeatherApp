@@ -10,38 +10,62 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.net.ConnectivityManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
+import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
+import com.example.weather.model.RemoteDataSource.RemoteDataSourceImp
+import com.example.weather.model.localDataSource.LocalDataSourceImpl
+import com.example.weather.model.localDataSource.sharedPreferences.SharedPreferencesDataSourceImp
 import com.example.weather.model.pojo.LocationData
+import com.example.weather.model.repository.RepositoryImp
 import com.example.weather.utils.Constants
 import com.example.weather.utils.CurrentLocation
 import com.example.weather.utils.CurrentLocationResponse
 import com.example.weather.utils.LOCATIONTAG
 import com.example.weather.utils.LOCATION_ID_PERMISSION
 import com.example.weather.utils.LocationUtils
+import com.example.weather.viewModel.AppViewModel
+import com.example.weather.viewModel.ViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
+import java.util.Locale
 
 private const val TAG = "HomeActivity"
 class MainActivity : AppCompatActivity(), CurrentLocationResponse{
     //lateinit var currentLocation: CurrentLocation
     lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    private lateinit var sharedPreference: SharedPreferences
-    private lateinit var editor: SharedPreferences.Editor
+    private val viewModel: AppViewModel by lazy {
+        val viewModelFactory = ViewModelFactory( RepositoryImp.getInstance(
+            remote = RemoteDataSourceImp.getInstance(),
+            local = LocalDataSourceImpl.getInstance(this),
+            sharedPreferencesDataSource = SharedPreferencesDataSourceImp(this)))
+        ViewModelProvider(this@MainActivity,viewModelFactory).get(AppViewModel::class.java)
+    }
+    private lateinit var sharedPreferences: SharedPreferences
+    companion object {
+        const val PREF_FIRST_TIME = "first_time"
+        // Define your other constant keys here
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        if (isFirstTime()) {
+            setDefaultSettings()
+            markFirstTime(false)
+        }
     }
 
     override fun onResume() {
@@ -139,36 +163,7 @@ class MainActivity : AppCompatActivity(), CurrentLocationResponse{
         Toast.makeText(this, "Please enable location services", Toast.LENGTH_LONG).show()
         this.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
     }
-    /*@SuppressLint("MissingPermission")
-    private fun requestNewLocationData() {
-        val mLocationRequest = LocationRequest().apply {
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 5
-        }
 
-        LocationServices.getFusedLocationProviderClient(this).lastLocation.addOnCompleteListener{ task->
-            val location: Location? = task.result
-            Log.i(LOCATIONTAG, "requestNewLocationData: result ${task.result}")
-            location?.let {
-                val city = LocationUtils.getCityName(this, location.latitude, it.longitude)
-                val result = LocationData(
-                    latitude = it.latitude,
-                    longitude = it.longitude,
-                    cityName = city
-                )
-                success(result)
-                Log.i(LOCATIONTAG, "requestNewLocationData: success, city name is $city")
-            } ?: run {
-                Log.i(LOCATIONTAG, "requestNewLocationData: Failed to get location ")
-                failure("Failed to get location")
-                // getLocation()
-            }
-        }.addOnFailureListener { e ->
-            Log.e(LOCATIONTAG, "Failed to get location", e)
-            //currentLocationResponse.failure(e.toString())
-            getLocation()
-        }
-    }*/
     @SuppressLint("MissingPermission")
     private fun requestNewLocationData() {
         val mLocationRequest = LocationRequest().apply {
@@ -193,15 +188,6 @@ class MainActivity : AppCompatActivity(), CurrentLocationResponse{
                     longitude = it.longitude,
                     cityName = city
                 )
-                sharedPreference =
-                    this@MainActivity.getSharedPreferences("PREFERENCE", Context.MODE_PRIVATE)
-
-                editor = sharedPreference.edit()
-                editor.putString(Constants.Location, "GPS")
-                editor.putString(Constants.CityName, result.cityName)
-                editor.putString(Constants.Latitude, result.latitude.toString())
-                editor.putString(Constants.Longitude, result.longitude.toString())
-                editor.commit()
 
                 val intent = Intent(this@MainActivity, HomeActivity::class.java).apply {
                     putExtra("locationData",result)
@@ -209,7 +195,7 @@ class MainActivity : AppCompatActivity(), CurrentLocationResponse{
                 startActivity(intent)
                 finish()
                 fusedLocationClient.removeLocationUpdates(this)
-                Log.i(LOCATIONTAG, "requestNewLocationData: success, city name is $city")
+                Log.i(LOCATIONTAG, "MainActivity: success, city name is $city")
             } ?: run {
                 Log.i(LOCATIONTAG, "requestNewLocationData: Failed to get location ")
                 failure("Failed to get location")
@@ -224,5 +210,37 @@ class MainActivity : AppCompatActivity(), CurrentLocationResponse{
     override fun onDestroy() {
         super.onDestroy()
         fusedLocationClient.removeLocationUpdates(mLocationCallBack)
+    }
+    private fun setDefaultSettings(){
+        viewModel.saveData(Constants.isFirstTime,"true")
+        viewModel.saveData(Constants.Location, Constants.LOCATION_GPS)
+        saveDeviceLanguage(this)
+        viewModel.saveData(Constants.Temperature,Constants.UNITS_CELSIUS)
+        viewModel.saveData(Constants.Notification,Constants.NOTIFICATION_ENABLE)
+    }
+    private fun isFirstTime(): Boolean {
+        return sharedPreferences.getBoolean(PREF_FIRST_TIME, true)
+    }
+
+    private fun markFirstTime(isFirstTime: Boolean) {
+        sharedPreferences.edit().putBoolean(PREF_FIRST_TIME, isFirstTime).apply()
+    }
+
+    fun saveDeviceLanguage(context: Context) {
+        val deviceLanguage = getDeviceLanguage(context)
+        val languageCode = if (deviceLanguage.language.equals("ar", ignoreCase = true)) {
+            Constants.LANGUAGE_AR
+        } else {
+            Constants.LANGUAGE_EN
+        }
+       viewModel.saveData(Constants.Language, languageCode)
+    }
+    private fun getDeviceLanguage(context: Context): Locale {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            context.resources.configuration.locales[0]
+        } else {
+            @Suppress("DEPRECATION")
+            context.resources.configuration.locale
+        }
     }
 }

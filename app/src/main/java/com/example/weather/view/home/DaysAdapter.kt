@@ -1,5 +1,6 @@
 package com.example.weather.view.home
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
@@ -26,6 +27,7 @@ class DaysAdapter(private var tempUnit:String):  ListAdapter<DailyItem, DaysAdap
         rowBinding = DaysRowItemBinding.inflate(inflater,parent,false)
         return ViewHolder(rowBinding)
     }
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = getItem(position)
         Log.i(TAG, "onBindViewHolder: DaysAdapter ${position}")
@@ -34,13 +36,9 @@ class DaysAdapter(private var tempUnit:String):  ListAdapter<DailyItem, DaysAdap
             Log.i(TAG, "onBindViewHolder: DaysAdapter ${currentItem.dt?.let { getDay(currentItem.dt) }}")
             holder.dayTV.text = currentItem.dt?.let { getDay(currentItem.dt) }
            // holder.temp.text = response.temp?.day?.let { ConvertUnits.convertTemp(it, tempUnit = tempUnit) }
-            val tempMin = response.temp?.min?.let {
-                ConvertUnits.convertTemp(it, tempUnit = tempUnit)
-            }
-            val tempMax = response.temp?.max?.let {
-                ConvertUnits.convertTemp(it, tempUnit = tempUnit)
-            }
-            holder.temp.text = "$tempMin / $tempMax"
+            val tempMin = response.temp?.min.toString() + "\u00B0"
+            val tempMax = response.temp?.max.toString() + "\u00B0"
+            holder.temp.text ="$tempMin / $tempMax"
             holder.tempStatu.text = response.weather?.get(0)?.description
             var iconForHourName =response?.weather?.get(0)?.icon.toString()
             AppIcons.getIcon(iconForHourName, holder.iconWeather)

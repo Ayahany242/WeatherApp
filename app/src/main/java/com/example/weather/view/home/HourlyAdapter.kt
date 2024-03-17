@@ -37,7 +37,7 @@ class HourlyAdapter ( var tempUnit:String, var timezone: String):  ListAdapter<H
         Log.i(TAG, "onBindViewHolder: HourlyAdapter ${currentItem.dt}")
         currentItem.let { response ->
             holder.hourTV.text = currentItem.dt?.let { getCurrentTime(it,timezone) }
-            holder.temp.text = response.temp?.let { ConvertUnits.convertTemp(it, tempUnit = tempUnit) }
+            holder.temp.text = response.temp.toString() + "\u00B0"
             var iconForHourName =response?.weather?.get(0)?.icon.toString()
             AppIcons.getIcon(iconForHourName, holder.iconWeather)
         }

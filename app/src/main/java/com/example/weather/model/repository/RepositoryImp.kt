@@ -2,6 +2,7 @@ package com.example.weather.model.repository
 
 import com.example.weather.model.RemoteDataSource.RemoteDataSource
 import com.example.weather.model.localDataSource.LocalDataSource
+import com.example.weather.model.localDataSource.sharedPreferences.SharedPreferencesDataSource
 import com.example.weather.model.pojo.LocationData
 import com.example.weather.model.pojo.WeatherDBModel
 import com.example.weather.model.pojo.WeatherResponse
@@ -9,16 +10,19 @@ import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
 private const val TAG = "WeatherResponse"
-class RepositoryImp internal constructor(private val remoteDataSource: RemoteDataSource, private val localDataSource: LocalDataSource) :
+class RepositoryImp internal constructor(private val remoteDataSource: RemoteDataSource,
+                                         private val localDataSource: LocalDataSource,
+                                         private val sharedPreferencesDataSource: SharedPreferencesDataSource? = null) :
     Repository {
     companion object {
         @Volatile
         private var INSTANCE: RepositoryImp? = null
-        fun getInstance(remote: RemoteDataSource,local:LocalDataSource): RepositoryImp {
+        fun getInstance(remote: RemoteDataSource,local:LocalDataSource,sharedPreferencesDataSource: SharedPreferencesDataSource? = null): RepositoryImp {
             return INSTANCE ?: synchronized(this) {
                 val instance = RepositoryImp(
                     remote,
                     local,
+                    sharedPreferencesDataSource = sharedPreferencesDataSource
                 )
                 INSTANCE = instance
                 instance
@@ -57,6 +61,13 @@ class RepositoryImp internal constructor(private val remoteDataSource: RemoteDat
 
     override suspend fun deleteFavourite(favouriteCity: LocationData) {
         localDataSource.deleteFavourite(favouriteCity)
+    }
+
+    override fun getData(key: String, defaultValue: String): String {
+        return sharedPreferencesDataSource?.getData(key, defaultValue)!!
+    }
+    override fun saveData(key: String, value: String) {
+        sharedPreferencesDataSource?.saveData(key, value)
     }
 
 }

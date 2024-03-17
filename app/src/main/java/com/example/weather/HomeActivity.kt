@@ -2,6 +2,7 @@ package com.example.weather
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -10,6 +11,8 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
 import com.example.weather.databinding.ActivityHomeBinding
+import com.example.weather.model.pojo.LocationData
+import com.example.weather.view.home.HomeFragmentDirections
 
 private const val TAG = "HomeActivity"
 class HomeActivity : AppCompatActivity() {
@@ -32,6 +35,16 @@ class HomeActivity : AppCompatActivity() {
         }
         navController = Navigation.findNavController(this,R.id.nav_host_fragment_container)
         NavigationUI.setupWithNavController(binding.navigatorView,navController)
+
+        intent.getSerializableExtra("locationData")?.let { locationData ->
+            if (locationData is LocationData) {
+                val action = HomeFragmentDirections.actionHomeFragmentSelf(locationData)
+                navController.navigate(action)
+                locationData
+            } else {
+                Log.i(TAG, "onCreate: locationData")
+            }
+        }
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {

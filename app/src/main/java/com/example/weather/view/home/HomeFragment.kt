@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.databinding.FragmentHomeBinding
 import com.example.weather.model.RemoteDataSource.RemoteDataSourceImp
 import com.example.weather.model.localDataSource.LocalDataSourceImpl
+import com.example.weather.model.localDataSource.sharedPreferences.SharedPreferencesDataSourceImp
 import com.example.weather.viewModel.AppViewModel
 import com.example.weather.viewModel.ViewModelFactory
 import com.example.weather.model.pojo.LocationData
@@ -30,6 +32,7 @@ import com.example.weather.utils.ApiStatus
 import com.example.weather.utils.AppIcons
 import com.example.weather.utils.Constants
 import com.example.weather.utils.ConvertUnits
+import com.example.weather.utils.LocationUtils
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -46,27 +49,27 @@ class HomeFragment : Fragment() {
 
     private val args: HomeFragmentArgs by navArgs()
     private var locationData: LocationData? =null
+    private var isFavourite :Boolean = false
 
     private lateinit var hourlyAdapter: HourlyAdapter
     private lateinit var daysAdapter: DaysAdapter
 
-    private lateinit var sharedPreference: SharedPreferences
-    private lateinit var editor: SharedPreferences.Editor
+    /*private lateinit var sharedPreference: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor*/
 
-    var currentLanguage: String = "en"
-    var tempUnit=Constants.Celsius
+    private var currentLanguage: String = "en"
+    private var tempUnit=Constants.Celsius
+    private var temperatureUnit = Constants.UNITS_CELSIUS
 
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModelFactory = ViewModelFactory( RepositoryImp.getInstance(
             remote = RemoteDataSourceImp.getInstance(),
-            local = LocalDataSourceImpl.getInstance(requireContext())))
+            local = LocalDataSourceImpl.getInstance(requireContext()),
+            sharedPreferencesDataSource = SharedPreferencesDataSourceImp(requireContext())
+        ))
         viewModel= ViewModelProvider(requireActivity(),viewModelFactory).get(AppViewModel::class.java)
-
-        sharedPreference = requireActivity().getSharedPreferences("PREFERENCE", Context.MODE_PRIVATE)
-        // Retrieve the stored values
-        currentLanguage = sharedPreference.getString(Constants.Language, "en").toString()
         checkLanguage(currentLanguage)
 
     }
@@ -81,35 +84,43 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tempUnit= sharedPreference.getString(Constants.Temperature,Constants.Celsius).toString()
-        var locationType = sharedPreference.getString(Constants.Location, "GPS")
-        val cityName = sharedPreference.getString(Constants.CityName, "")
-        val latitude = sharedPreference.getString(Constants.Latitude, "")
-        val longitude = sharedPreference.getString(Constants.Longitude, "")
-        locationData = LocationData(cityName = cityName!!,latitude = latitude!!.toDouble() , longitude = longitude!!.toDouble())
-        latitude?.let { longitude?.let { it1 -> showWeather(it.toFloat(), it1.toFloat()) } }
-       /* locationData = args.locationData
+        currentLanguage = viewModel.getData(Constants.Language,Constants.LANGUAGE_EN)
+        temperatureUnit = viewModel.getData(Constants.Temperature,Constants.UNITS_CELSIUS)
+
+        Log.i(TAG, "onViewCreated: tempUnit=  $tempUnit , currentLanguage = $currentLanguage ,  ")
+        locationData = args.locationData
+        isFavourite = args.isFavourite
         locationData?.let {
             Log.i(TAG, "onCreate: onViewCreated Home Fragment latitude = ${it.latitude}, longitude = ${it.longitude}")
-            editor.putString(Constants.Location, "GPS")
-            editor.putString(Constants.CityName, locationData!!.cityName)
-            editor.putString(Constants.Latitude, locationData!!.latitude.toString())
-            editor.putString(Constants.Longitude, locationData!!.longitude.toString())
-            editor.commit()
-
-            //showWeather(it.latitude.toFloat(),it.longitude.toFloat())
+            if (!isFavourite){
+                viewModel.saveData(Constants.CityName, locationData!!.cityName)
+                viewModel.saveData(Constants.Latitude, locationData!!.latitude.toString())
+                viewModel.saveData(Constants.Longitude, locationData!!.longitude.toString())
+            }
+            showWeather(it.latitude.toFloat(),it.longitude.toFloat())
         } ?: run {
-            getDataFromRoom()
-        }*/
+            val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val networkInfo = connectivityManager.activeNetworkInfo
+            if (networkInfo != null && networkInfo.isConnected) {
+                val longitude = viewModel.getData(Constants.Longitude,"0").toFloat()
+                val latitude = viewModel.getData(Constants.Latitude,"0").toFloat()
+                showWeather(latitude,longitude)
+            }else{
+                getDataFromRoom()
+                Log.i(TAG, "onViewCreated: localeData is null ")
+            }
+
+
+        }
 
     }
 
-    private fun showWeather(latitude:Float, longitude:Float,lang:String = "en" ,units: String = "standard"){
+    private fun showWeather(latitude:Float, longitude:Float){
         viewModel.fetchWeather(lat=latitude,
             lon=longitude,
             apiKey = API_KEY,
-            units=units,
-            lang=lang)
+            units=temperatureUnit,
+            lang=currentLanguage)
         Log.i(TAG, "getWeather: getWeather")
 
         lifecycleScope.launch(Dispatchers.Main) {
@@ -137,8 +148,11 @@ class HomeFragment : Fragment() {
                                 weatherData.timezone!!,
                                 weatherData?.timezoneOffset ?: 0
                             )
-                            viewModel.deleteWeatherFromRoom(weatherDBModel)
-                            viewModel.insertWeatherInRoom(weatherDBModel)
+                            if (!isFavourite){
+                                viewModel.deleteWeatherFromRoom(weatherDBModel)
+                                viewModel.insertWeatherInRoom(weatherDBModel)
+                                Log.i(TAG, "Saved current wither in database")
+                            }
                         }else
                             Log.i(TAG, "showWeather: weatherData == null")
                     }
@@ -173,7 +187,9 @@ class HomeFragment : Fragment() {
                                 timezoneOffset = weather.timezone_offset
                             )
                             binding.progressBar.visibility = View.GONE
-                            setUpUI(weatherResponse)
+                           val cityName = LocationUtils.getCityName(requireContext(),
+                                weatherResponse.lat!!.toDouble(), weatherResponse.lon!!.toDouble())
+                            setUpUI(weatherResponse,cityName)
                             Log.i(TAG, "getDataFromRoom: weatherResponseList NOT Null ")
                         } else {
                             Log.i(TAG, "getDataFromRoom: weatherResponseList is Null ")
@@ -194,11 +210,11 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setUpUI(response: WeatherResponse){
+    private fun setUpUI(response: WeatherResponse,cityName:String = "UnKnown"){
         hourlyAdapter = HourlyAdapter(tempUnit,response.timezone?:"")
         daysAdapter = DaysAdapter(tempUnit)
 
-        displayCurrentWeatherData(response)
+        displayCurrentWeatherData(response,cityName)
 
         binding.recyclerViewHourly.apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
@@ -218,12 +234,12 @@ class HomeFragment : Fragment() {
         Log.i(TAG, "setUpUI: ${locationData?.cityName}" )
     }
     @SuppressLint("SetTextI18n")
-    private fun displayCurrentWeatherData(response: WeatherResponse){
-        binding.currentLocation.text = locationData?.cityName ?: "unKnown"
+    private fun displayCurrentWeatherData(response: WeatherResponse,cityName:String){
+        binding.currentLocation.text = locationData?.cityName ?: cityName
         binding.currentDate.text = response.current?.dt?.let { getDateTime(it) }
         //response.current?.weather?.get(0)?.let { it.icon?.let { it1 -> AppIcons.getIcon(it1, binding.)}}
-        binding.currentTemp.text =
-            response.current?.temp?.let { ConvertUnits.convertTemp(it, tempUnit = tempUnit) }
+        binding.currentTemp.text =response.current?.temp.toString() + "\u00B0"
+            //response.current?.temp?.let { ConvertUnits.convertTemp(it, tempUnit = tempUnit) }
         binding.currentWeatherState.text = response.current?.weather?.get(0)?.description
         Log.i(TAG, "binding.weatherState.text:${binding.currentWeatherState.text} ")
         response.current?.weather?.get(0)?.let {

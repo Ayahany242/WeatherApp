@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.lang.Exception
 
 private const val TAG = "WeatherResponse"
@@ -99,14 +100,12 @@ class AppViewModel(private val repository : Repository): ViewModel(){
         }
     }
 
-    fun insertFavourite(favouritModel: LocationData) {
+    fun insertFavourite(favoriteModel: LocationData) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                repository.insertFavourite(favouritModel)
-
+                repository.insertFavourite(favoriteModel)
             } catch (e: Exception) {
-                Log.e("FavouriteViewModel", e.message.toString())
-
+                Timber.tag("FavouriteViewModel").e(e.message.toString())
             }
         }
     }
@@ -115,9 +114,8 @@ class AppViewModel(private val repository : Repository): ViewModel(){
         viewModelScope.launch(Dispatchers.IO){
             try {
                repository.deleteFavourite(favouritModel)
-
             } catch (e: Exception) {
-                Log.e("FavouriteViewModel", e.message.toString())
+                Timber.tag("FavouriteViewModel").e(e.message.toString())
 
             }
         }
@@ -137,5 +135,13 @@ class AppViewModel(private val repository : Repository): ViewModel(){
                 Log.e("FavouriteViewModel", e.message.toString())
             }
         }
+    }
+
+    fun saveData(key: String, value: String) {
+        repository.saveData(key, value)
+    }
+
+    fun getData(key: String, defaultValue: String): String {
+        return repository.getData(key, defaultValue)
     }
 }

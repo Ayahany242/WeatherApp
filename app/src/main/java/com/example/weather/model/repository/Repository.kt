@@ -12,8 +12,9 @@ interface Repository {
     suspend fun getAllWeather(): Flow<List<WeatherDBModel>>
     suspend fun insertWeather(weather:WeatherDBModel):Long
     suspend fun deleteWeather(weather: WeatherDBModel):Int
-
     suspend fun getAllFavourites(): Flow<List<LocationData>>
     suspend fun insertFavourite(favouriteCity: LocationData)
     suspend fun deleteFavourite(favouriteCity: LocationData)
+    fun getData(key: String, defaultValue: String): String
+    fun saveData(key: String, value: String)
 }

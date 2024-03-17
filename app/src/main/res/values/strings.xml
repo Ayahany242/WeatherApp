@@ -24,4 +24,20 @@
     <string name="Save_In_Favourite">Save in Favourite</string>
     <string name="Dialog_Save_Fav_Message">Do you want to save this Location in Favourite</string>
     <string name="Save_Successfull">This location Saved Successful</string>
+    <string name="location">Location</string>
+    <string name="gps">GPS</string>
+    <string name="map">Map</string>
+    <string name="languages">Languages</string>
+    <string name="english">English</string>
+    <string name="arabic">Arabic</string>
+    <string name="wind_speed">Wind Speed</string>
+    <string name="meter_sec">Meter / Sec</string>
+    <string name="mile_hour">Mile / Hour</string>
+    <string name="temperature">Temperature</string>
+    <string name="celsius">Celsius</string>
+    <string name="fahrenheit">Fahrenheit</string>
+    <string name="kelvin">Kelvin</string>
+    <string name="notification">Notification</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
 </resources>
